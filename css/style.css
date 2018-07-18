@@ -809,12 +809,7 @@ h1, h2, h3, h4, h5, h6, figure {
   color: #fff;
   font-size: 13px;
 }
-.fh5co-tabs .class-schedule small {
-  color: #fcf8e3;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 14px;
-}
+
 .pricing {
   display: block;
   float: left;
