@@ -303,6 +303,118 @@
 		}); 
 	};
 
+	var customContent = function() {
+		console.log('definindo dados institucionais');
+		
+		//INNER HTML
+		
+		$("#teste").load('teste.html', function(data){
+			console.log(data);
+		});
+		
+		//CONTATOS
+		var telefone = '61 98271 2088';
+		var email = 'studiomovimentoearte@gmail.com';
+		
+		$("#telefone").attr('href','tel:'+telefone.replace(' ','').replace(' ',''));
+		$("#telefone").text(telefone);
+		
+		$("#email").attr('href','mailto:'+email);
+		$("#email").text(email);
+		
+		//MIDIAS
+		
+		var linkYoutube = 'https://youtu.be/7uYjfjtvh54';
+		var linkFacebook = 'https://pt-br.facebook.com/studiomovimentoearte';
+		var linkInstagram = 'https://www.instagram.com/p/BlSrSeNhPJi/?utm_source=ig_share_sheet&igshid=aqleex4a5mso';
+		
+		$(".linkYoutube").attr('href', linkYoutube);		
+		$(".linkFacebook").attr('href', linkFacebook);
+		$(".linkInstagram").attr('href', linkInstagram);
+		
+		//MODALIDADES
+		
+		var modalidades1 = ['Cardio','Body Building','Yoga','Boxing','Running'];
+		var modalidades2 = ['Boxing','Martial Arts','Karate','Kungfu','Basketball'];
+		var modalidades3 = ['Badminton','Teams','Advertise','API','Babys'];
+		
+		for(var i = 0; i < modalidades1.length; i++){
+			$("#modalidade1 ul").append('<li>'+modalidades1[i]+'</li>');
+		}
+		
+		for(var i = 0; i < modalidades2.length; i++){
+			$("#modalidade2 ul").append('<li>'+modalidades2[i]+'</li>');
+		}
+		
+		for(var i = 0; i < modalidades3.length; i++){
+			$("#modalidade3 ul").append('<li>'+modalidades3[i]+'</li>');
+		}
+		
+		//TEXTOS
+		
+		var textSlogan = 'Nosso corpo se move, e nossa alma dança';
+		var textChamado = 'Marque sua aula experimental!';
+		var textTrainers = 'Nossa equipe altamente capacitada oferece os mais modernos métodos e modalidades para proporcionar aos seus alunos um melhor rendimento e desempenho a cada atividade!';
+		var textFooterMsg = '"A dança não é movimento súbito gesto musical, é concentração, num momento, da humana graça natural."';
+		var textFooterAutor = 'Carlos Drummond de Andrade';
+		var textCopyright = '&copy; '+(new Date).getFullYear()+' - All Rights Reserved.';
+		
+		//SHOW PART
+		
+		var showService = true;
+		var showTrainer = true;
+		var showAgenda = false;
+		
+		var showPricing = true;
+		
+		var showGallery = false;
+		
+		var showTestimonial = false;
+		
+		var showStarted = true;
+		
+		var showBlog = true;
+
+		
+		
+
+		
+		$('.textSlogan').html(textSlogan);
+		$('.textChamado').html(textChamado);
+		$('.textTrainers').html(textTrainers);
+		$('.textFooterMsg').html(textFooterMsg);
+		$('.textFooterAutor').html(textFooterAutor);
+		$('.textCopyright').html(textCopyright);
+		
+		
+		if(!showService){
+			$('#fh5co-services').css('display', 'none');	
+		}
+
+		if(!showTrainer)
+			$('#fh5co-trainer').css('display', 'none');
+		
+		
+
+		if(!showAgenda)
+			$('#fh5co-schedule').css('display', 'none');
+
+		if(!showBlog)
+			$('#fh5co-blog').css('display', 'none');		
+
+		if(!showTestimonial)
+			$('#fh5co-testimonial').css('display', 'none');
+
+		if(!showGallery)
+			$('#fh5co-gallery').css('display', 'none');
+
+		if(!showPricing)
+			$('#fh5co-pricing').css('display', 'none');
+
+		if(!showStarted)
+			$('#fh5co-started').css('display', 'none');
+		
+	};
 	
 	$(function(){
 		mobileMenuOutsideClick();
@@ -316,7 +428,11 @@
 		parallax();
 		testimonialCarousel();
 		tabs();
+		customContent();
 	});
+	
+       
+
 
 
 }());
