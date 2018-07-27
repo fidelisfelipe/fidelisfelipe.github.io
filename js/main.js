@@ -314,7 +314,7 @@
 		
 		//CONTATOS
 		var telefone = '61 98271 2088';
-		var email = 'studiomovimentoearte@gmail.com';
+		var email = 'contato@studiomovimentoearte.com.br';
 		
 		$("#telefone").attr('href','tel:'+telefone.replace(' ','').replace(' ',''));
 		$("#telefone").text(telefone);
