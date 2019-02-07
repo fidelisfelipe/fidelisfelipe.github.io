@@ -77,7 +77,7 @@ gulp.task('default', function (callback) {
 
 gulp.task('build', function (callback) {
     runSequence('clean:dist', 'sass',
-        ["minifyjs", "minifycss", "minifyhtml", "images", 'font'],
+		["minifyjs", "minifycss", "minifyhtml"],//, "images"],//, 'font'],
         callback
     )
 });
