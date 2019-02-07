@@ -1,137 +1,89 @@
-// Load plugins
-const autoprefixer = require("gulp-autoprefixer");
-const browsersync = require("browser-sync").create();
-const cleanCSS = require("gulp-clean-css");
-const gulp = require("gulp");
-const header = require("gulp-header");
-const plumber = require("gulp-plumber");
-const rename = require("gulp-rename");
-const sass = require("gulp-sass");
-const uglify = require("gulp-uglify");
-const pkg = require('./package.json');
+var gulp = require("gulp");
+var sass = require("gulp-sass");
+var browserSync = require("browser-sync").create();
+var gulpIf = require('gulp-if');
+var uglify = require('gulp-uglify-es').default;
+var cssnano = require('gulp-cssnano');
+var htmlmin = require('gulp-htmlmin');
+var rename = require('gulp-rename');
+var imagemin = require('gulp-imagemin');
+var del = require('del');
+var runSequence = require('run-sequence');
+var wait = require('gulp-wait');
 
-// Set the banner content
-const banner = ['/*!\n',
-  ' * Start Bootstrap - <%= pkg.title %> v<%= pkg.version %> (<%= pkg.homepage %>)\n',
-  ' * Copyright 2013-' + (new Date()).getFullYear(), ' <%= pkg.author %>\n',
-  ' * Licensed under <%= pkg.license %> (https://github.com/BlackrockDigital/<%= pkg.name %>/blob/master/LICENSE)\n',
-  ' */\n',
-  '\n'
-].join('');
-
-// Copy third party libraries from /node_modules into /vendor
-gulp.task('vendor', function(cb) {
-
-  // Bootstrap
-  gulp.src([
-      './node_modules/bootstrap/dist/**/*',
-      '!./node_modules/bootstrap/dist/css/bootstrap-grid*',
-      '!./node_modules/bootstrap/dist/css/bootstrap-reboot*'
-    ])
-    .pipe(gulp.dest('./vendor/bootstrap'))
-
-  // Font Awesome
-  gulp.src([
-      './node_modules/@fortawesome/**/*',
-    ])
-    .pipe(gulp.dest('./vendor'))
-
-  // jQuery
-  gulp.src([
-      './node_modules/jquery/dist/*',
-      '!./node_modules/jquery/dist/core.js'
-    ])
-    .pipe(gulp.dest('./vendor/jquery'))
-
-  // jQuery Easing
-  gulp.src([
-      './node_modules/jquery.easing/*.js'
-    ])
-    .pipe(gulp.dest('./vendor/jquery-easing'))
-
-  // Magnific Popup
-  gulp.src([
-      './node_modules/magnific-popup/dist/*'
-    ])
-    .pipe(gulp.dest('./vendor/magnific-popup'))
-
-  cb();
-
+gulp.task("sass", function () {
+    return gulp
+        .src("src/styles/sass/**/*.scss")
+        .pipe(wait(700))
+        .pipe(sass())
+        .pipe(gulp.dest("src/styles/css"))
+        .pipe(cssnano({ zindex: false }))
+        .pipe(rename({ suffix: '.min' }))
+        .pipe(gulp.dest("src/styles/css"))
+        .pipe(gulp.dest("dist/styles/css"));
 });
 
-// CSS task
-function css() {
-  return gulp
-    .src("./scss/*.scss")
-    .pipe(plumber())
-    .pipe(sass({
-      outputStyle: "expanded"
-    }))
-    .on("error", sass.logError)
-    .pipe(autoprefixer({
-      browsers: ['last 2 versions'],
-      cascade: false
-    }))
-    .pipe(header(banner, {
-      pkg: pkg
-    }))
-    .pipe(gulp.dest("./css"))
-    .pipe(rename({
-      suffix: ".min"
-    }))
-    .pipe(cleanCSS())
-    .pipe(gulp.dest("./css"))
-    .pipe(browsersync.stream());
-}
+gulp.task("browserSync", function () {
+    browserSync.init({
+        server: {
+            baseDir: "src"
+        },
+        startPath: "index.html"
+    });
+});
 
-// JS task
-function js() {
-  return gulp
-    .src([
-      './js/*.js',
-      '!./js/*.min.js',
-      '!./js/contact_me.js',
-      '!./js/jqBootstrapValidation.js'
-    ])
-    .pipe(uglify())
-    .pipe(header(banner, {
-      pkg: pkg
-    }))
-    .pipe(rename({
-      suffix: '.min'
-    }))
-    .pipe(gulp.dest('./js'))
-    .pipe(browsersync.stream());
-}
+gulp.task("minifyjs", function () {
+    return gulp.src('src/js/**/*')
+        .pipe(gulpIf('*.js', uglify()))
+        .pipe(gulp.dest('dist/js'))
+});
 
-// Tasks
-gulp.task("css", css);
-gulp.task("js", js);
+gulp.task("minifycss", function () {
+    return gulp.src('src/styles/css/**/*')
+        .pipe(gulpIf('*.css', cssnano({ zindex: false })))
+        .pipe(gulp.dest('dist/styles/css'))
+});
 
-// BrowserSync
-function browserSync(done) {
-  browsersync.init({
-    server: {
-      baseDir: "./"
-    }
-  });
-  done();
-}
+gulp.task("minifyhtml", function () {
+    return gulp.src('src/*.html')
+        .pipe(htmlmin())
+        .pipe(gulp.dest('dist'))
+});
 
-// BrowserSync Reload
-function browserSyncReload(done) {
-  browsersync.reload();
-  done();
-}
+gulp.task('images', function () {
+    return gulp.src('src/images/*.+(png|jpg|gif|svg)')
+        .pipe(imagemin({
+            interlaced: true,
+            progressive: true,
+            optimizationLevel: 8
+        }))
+        .pipe(gulp.dest('dist/images'))
+});
 
-// Watch files
-function watchFiles() {
-  gulp.watch("./scss/**/*", css);
-  gulp.watch(["./js/**/*.js", "!./js/*.min.js"], js);
-  gulp.watch("./**/*.html", browserSyncReload);
-}
+gulp.task('font', function () {
+    return gulp.src('src/fonts/**/*')
+        .pipe(gulp.dest('dist/fonts'))
+});
 
-gulp.task("default", gulp.parallel('vendor', css, js));
+gulp.task('clean:dist', function () {
+    return del.sync('dist');
+});
 
-// dev task
-gulp.task("dev", gulp.parallel(watchFiles, browserSync));
+gulp.task('default', function (callback) {
+    runSequence(['sass', 'browserSync', 'watch'],
+        callback
+    )
+});
+
+gulp.task('build', function (callback) {
+    runSequence('clean:dist', 'sass',
+        ["minifyjs", "minifycss", "minifyhtml", "images", 'font'],
+        callback
+    )
+});
+
+gulp.task("watch", ["browserSync", "sass"], function () {
+    gulp.watch("src/styles/sass/**/*.scss", ["sass", browserSync.reload]);
+    gulp.watch("src/js/**/*.js", browserSync.reload);
+    gulp.watch("src/*.html", browserSync.reload);
+});
